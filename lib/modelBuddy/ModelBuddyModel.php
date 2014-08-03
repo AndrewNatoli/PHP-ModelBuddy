@@ -1,7 +1,8 @@
 <?php
 /**
  * PHP Model Buddy
- * The Core!
+ * Base model
+ * Contains all the main logic for fetching generic models, manipulating and updating them.
  * @author Andrew Natoli
  * @date 2014 August
  * @since 1
@@ -34,6 +35,11 @@ abstract class ModelBuddyModel {
     private $wc;
 
     /**
+     * @var $custom_wc_values
+     * Array of values if we're using a custom WC
+     */
+
+    /**
      * @var $wc_type
      * The type of WHERE clause we were given for our model.
      * Should be set with one of the wc_use[key|custom|array] constants
@@ -50,8 +56,9 @@ abstract class ModelBuddyModel {
      * __construct
      * Get our table structure and populate the model's data if necessary
      * @param mixed $wc Our WHERE clause for the record to fetch. Blank if creating a new record.
+     * @param mixed $custom_wc_values Array of values if we're using a custom WC.
      */
-    function __construct($wc="") {
+    function __construct($wc="",$custom_wc_values="") {
         global $db;
         //Get our table name using the name of the class that was called
         $this->mb_class = str_replace("Model","",get_class($this));
@@ -74,7 +81,7 @@ abstract class ModelBuddyModel {
          */
         if(is_array($wc))
             $this->wc_type = ModelBuddyModel::wc_use_array;     //Use an array for the where-clause. Match keys to values
-        elseif(strstr($wc," "))
+        elseif(strstr($wc," ") || strstr($wc,"="))
             $this->wc_type = ModelBuddyModel::wc_use_custom;    //Use a custom, hand-crafted where clause
         else
             $this->wc_type = ModelBuddyModel::wc_use_key;       //Use the table's primary key with a single value
@@ -98,7 +105,7 @@ abstract class ModelBuddyModel {
             $this->mb_setDefaults();
         }
         else {
-            $this->mb_fetchModel($wc);
+            $this->mb_fetchModel($wc,$custom_wc_values);
         }
     }
 
@@ -117,8 +124,9 @@ abstract class ModelBuddyModel {
      * mb_fetchModel
      * Populate the object with the database row
      * @param mixed $wc Where-clause. Can be a single word, manually written WC or array of keys to match
+     * @param mixed $custom_wc_values Array of values to be thrown into the wc
      */
-    private function mb_fetchModel($wc) {
+    private function mb_fetchModel($wc,$custom_wc_values) {
         global $db;
         switch($this->wc_type) {
             /*
@@ -128,6 +136,7 @@ abstract class ModelBuddyModel {
                 mb_debugMessage("Searching for " . $this->mb_class . " record by primary key");
                 $query = "SELECT * FROM {$this->mb_class} WHERE {$this->mb_primary_key}=?";
                 try {
+                    mb_debugMessage($query);
                     $stmt = $db->prepare($query);
                     $stmt->execute(array("{$wc}"));
                 }
@@ -163,6 +172,24 @@ abstract class ModelBuddyModel {
              */
             case ModelBuddyModel::wc_use_custom:
                 mb_debugMessage("Searching for " . $this->mb_class . " record using a custom WC");
+                $query = "SELECT * FROM {$this->mb_class} WHERE ";
+
+                //Make sure they didn't enter a WHERE in the beginning...
+                if(substr($wc,0,6) == "WHERE ")
+                    $wc = substr($wc,6);
+
+                //Make sure we have the wc values set
+                if(!is_array($custom_wc_values))
+                    die("You must supply an array of values for the where clause");
+                $query .= $wc;
+                try {
+                    mb_debugMessage($query);
+                    $stmt = $db->prepare($query);
+                    $stmt->execute($custom_wc_values);
+                }
+                catch(PDOException $e) {
+                    echo "Failed to fetch " . $this->mb_class . " model.<br/><br/>" . $e;
+                }
                 break;
 
         }

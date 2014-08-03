@@ -17,8 +17,6 @@ $guy = new PersonModel($array);
 echo "<br/><br/><b>Select by primary key</b><br/>";
 $guy = new PersonModel(1);
 
-/*
+
 echo "<br/><br/><b>Select using a custom wc</b><br/>";
-$array = array("person_id"=>1,"firstname"=>"Andrew");
-$guy = new PersonModel($array);
-*/
+$guy = new PersonModel("WHERE person_id=?",array(1));
