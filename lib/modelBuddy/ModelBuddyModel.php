@@ -11,31 +11,31 @@
 abstract class ModelBuddyModel {
 
     /**
-     * @var $class
+     * @var $mb_class
      * This is the name of the model we're using
      */
     protected $mb_class;
 
     /**
-     * @var $primary_key;
+     * @var $mb_primary_key;
      * Primary key for the table
      */
     protected  $mb_primary_key;
 
     /**
-     * @var $tableStructure
+     * @var $mb_tableStructure
      * The structure for this model's table
      */
     protected  $mb_tableStructure;
 
     /**
-     * @var $wc
+     * @var $mb_wc
      * The value the user submited for the where-clause
      */
     private $mb_wc;
 
     /**
-     * @var $custom_wc_values
+     * @var $mb_custom_wc_values
      * Array of values if we're using a custom WC
      */
     private $mb_custom_wc_values;
@@ -213,7 +213,7 @@ abstract class ModelBuddyModel {
                 foreach($row as $key=>$value) {
                     $this->$key = $value;
                 }
-                $this->mb_wc = $query; //Keep the query instead of the original mb_wc so we don't have to do the conversion again later
+                $this->mb_wc = strstr($query," WHERE ", false); //Keep the query instead of the original mb_wc so we don't have to do the conversion again later
                 $this->mb_custom_wc_values = $custom_wc_values;
             }
         }
@@ -272,10 +272,12 @@ abstract class ModelBuddyModel {
         $field_string = substr($field_string,0,-1);
         $value_string = substr($value_string,0,-1);
 
+        //Now piece the query together!
         $query = "INSERT INTO " . $this->mb_class . " (" . $field_string . ") VALUES (" . $value_string . ")";
         mb_debugMessage($query);
         mb_debugMessage($values);
 
+        //Let's insert it
         try {
             $stmt = $db->prepare($query);
             $stmt->execute($values);
@@ -291,7 +293,52 @@ abstract class ModelBuddyModel {
      * Updates the existing record in the database based on how it was selected ($this->wc)
      */
     private function updateRecord() {
+        global $db;
 
+        mb_debugMessage("Called updateRecord");
+        $field_string = "";
+        foreach($this->mb_tableStructure as $field) {
+            if(!strstr($field['Extra'],"auto_increment")) { //Let auto increment fields handle themselves
+                //UPDATE table SET...
+                $field_string   .= $field['Field'] . "=?,";
+                //The array of values to use in our prepared statement
+                $values[] = $this->$field['Field'];
+            }
+        }
+        //Trim off the ending comma
+        $field_string = substr($field_string,0,-1);
+
+        /*
+         * Now we need to add the original where-clause values into the $values array
+         */
+        //Array of values?
+        if(is_array($this->mb_custom_wc_values)) {
+            foreach($this->mb_custom_wc_values as $wc_value) {
+                $values[] = $wc_value;
+            }
+        }
+        //Custom values?
+        elseif($this->mb_custom_wc_values != "") {
+            $values[] = $this->mb_custom_wc_values;
+        }
+        else {
+            $values[] = $this->{$this->mb_primary_key};
+        }
+
+        //Now piece the query together!
+        $query = "UPDATE " . $this->mb_class . " SET " . $field_string . " " . $this->mb_wc;
+        mb_debugMessage($query);
+        mb_debugMessage($values);
+
+        //Let's update it
+        try {
+            $stmt = $db->prepare($query);
+            $stmt->execute($values);
+        }
+        catch(PDOException $e) {
+            die("Error updating " . $this->mb_class . " record.<br/><br/>" . $e);
+        }
+        mb_debugMessage("Record updated.");
     }
 
     protected function validate() {

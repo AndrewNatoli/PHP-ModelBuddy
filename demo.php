@@ -67,6 +67,37 @@ switch($mode) {
                 break;
         }
         break;
+
+    case "update":
+        switch($step) {
+            case 1:
+                $newPerson = new PersonModel(1);
+                echo "<h2>Model Update Demo</h2>Modify the form to update the record. Follow the proper format for the birth date as this is a rushed form and doesn't do validation.";
+                ?>
+                <form action="demo.php?mode=update&step=2" method="POST">
+                    <strong>person_id: <?php echo $newPerson->person_id; ?></strong><br/>
+                    <input name="firstname" type="text" size="30" maxlength="20" value="<?php echo $newPerson->firstname; ?>" placeholder="First name" required><br/>
+                    <input name="lastname" type="text" size="30" maxlength="20" value="<?php echo $newPerson->lastname; ?>" placeholder="Last name" required><br/>
+                    <input name="dob" type="text" size="30" maxlength="10" value="<?php echo substr($newPerson->dob,0,10); ?>" placeholder="Birthday (yyyy-mm-dd)" required><br/>
+                    <input type="submit" value="Create">
+                </form>
+                <?php
+                break;
+            case 2:
+                $newPerson = new PersonModel(1);
+                $newPerson->firstname   = $_POST['firstname'];
+                $newPerson->lastname    = $_POST['lastname'];
+                $newPerson->dob         = $_POST['dob'];
+                echo "<h2>Here's what your revised model looks like...</h2>";
+                echo "<pre>";
+                print_r($newPerson);
+                echo "</pre>";
+                echo "<h3>Now we'll update it in the database by calling PersonModel's update function</h3>";
+                $newPerson->update();
+                break;
+        }
+        break;
+
     /*
      * Main menu
      */
@@ -75,6 +106,7 @@ switch($mode) {
         echo "<ol>";
         echo "<li><a href='?mode=select'>Select Demo</a></li>";
         echo "<li><a href='?mode=insert'>Insert Demo</a></li>";
+        echo "<li><a href='?mode=update'>Update Demo</a></li>";
         echo "</ol>";
         break;
 }
