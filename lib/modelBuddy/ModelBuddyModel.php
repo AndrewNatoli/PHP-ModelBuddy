@@ -38,12 +38,14 @@ abstract class ModelBuddyModel {
      * @var $custom_wc_values
      * Array of values if we're using a custom WC
      */
+    private $custom_wc_values;
 
     /**
      * @var $wc_type
      * The type of WHERE clause we were given for our model.
      * Should be set with one of the wc_use[key|custom|array] constants
      */
+    private $wc_type;
 
     /*
      *  Constants for determining how our where-clauses should work
@@ -212,6 +214,7 @@ abstract class ModelBuddyModel {
                     $this->$key = $value;
                 }
                 $this->wc = $wc;
+                $this->custom_wc_values = $custom_wc_values;
             }
         }
         catch(PDOException $e) {
