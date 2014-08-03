@@ -12,4 +12,4 @@ include("inc/modelBuddy.php");
 
 echo "Hello World!";
 
-$guy = new PersonModel(2);
+$guy = new PersonModel();

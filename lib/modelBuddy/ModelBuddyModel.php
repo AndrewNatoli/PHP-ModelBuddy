@@ -13,13 +13,19 @@ abstract class ModelBuddyModel {
      * @var $class
      * This is the name of the model we're using
      */
-    private $class;
+    private $mb_class;
+
+    /**
+     * @var $primary_key;
+     * Primary key for the table
+     */
+    private $mb_primary_key;
 
     /**
      * @var $tableStructure
      * The structure for this model's table
      */
-    private $tableStructure;
+    private $mb_tableStructure;
 
     /**
      * __construct
@@ -29,20 +35,44 @@ abstract class ModelBuddyModel {
     function __construct($wc="") {
         global $db;
         //Get our table name using the name of the class that was called
-        $this->class = str_replace("Model","",get_class($this));
+        $this->mb_class = str_replace("Model","",get_class($this));
 
         //Get the table structure
         //TODO: Cache this for later
         try {
-            $stmt = $db->prepare("DESCRIBE " . $this->class);
+            $stmt = $db->prepare("DESCRIBE " . $this->mb_class);
             $stmt->execute();
-            $this->tableStructure = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->mb_tableStructure = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch (PDOException $e) {
-            die("Failed to load structure for " . $this->class . " table.");
+            die("Failed to load structure for " . $this->mb_class . " table.");
         }
-        echo "<pre>";
-        print_r($this->tableStructure);
+
+        /*
+         * Find our primary key
+         */
+        foreach($this->mb_tableStructure as $field) {
+            if($field['Key'] == "PRI") {
+                $this->mb_primary_key = $field['Field'];
+                break;
+            }
+        }
+
+        /*
+         * Populate some data
+         */
+        if($wc == "") {
+            //Blank model? Use defaults...
+            foreach($this->mb_tableStructure as $field) {
+                $this->$field['Field'] = $field['Default'];
+            }
+
+            echo "<pre>";
+            print_r($this);
+        }
+        else {
+
+        }
     }
 
 }
