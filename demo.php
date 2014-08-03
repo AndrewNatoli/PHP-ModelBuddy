@@ -62,8 +62,8 @@ switch($mode) {
                 echo "<pre>";
                 print_r($newPerson);
                 echo "</pre>";
-                echo "<h3>Now we'll save it to the database by calling PersonModel's update function";
-//                $newPerson->update();
+                echo "<h3>Now we'll save it to the database by calling PersonModel's update function</h3>";
+                $newPerson->update();
                 break;
         }
         break;

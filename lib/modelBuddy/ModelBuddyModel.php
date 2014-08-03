@@ -32,13 +32,13 @@ abstract class ModelBuddyModel {
      * @var $wc
      * The value the user submited for the where-clause
      */
-    private $wc;
+    private $mb_wc;
 
     /**
      * @var $custom_wc_values
      * Array of values if we're using a custom WC
      */
-    private $custom_wc_values;
+    private $mb_custom_wc_values;
 
     /**
      * @var $wc_type
@@ -100,7 +100,7 @@ abstract class ModelBuddyModel {
 
         /*
          * Populate some data
-         * Use either the defaults if no wc was specified OR fetch the model if there is a wc
+         * Use either the defaults if no mb_wc was specified OR fetch the model if there is a mb_wc
          */
         if($wc == "") {
             //Blank model? Use defaults...
@@ -126,7 +126,7 @@ abstract class ModelBuddyModel {
      * mb_fetchModel
      * Populate the object with the database row
      * @param mixed $wc Where-clause. Can be a single word, manually written WC or array of keys to match
-     * @param mixed $custom_wc_values Array of values to be thrown into the wc
+     * @param mixed $custom_wc_values Array of values to be thrown into the mb_wc
      */
     private function mb_fetchModel($wc,$custom_wc_values) {
         global $db;
@@ -170,7 +170,7 @@ abstract class ModelBuddyModel {
                 break;
 
             /*
-             * Search using a custom wc
+             * Search using a custom mb_wc
              */
             case ModelBuddyModel::wc_use_custom:
                 mb_debugMessage("Searching for " . $this->mb_class . " record using a custom WC");
@@ -180,7 +180,7 @@ abstract class ModelBuddyModel {
                 if(substr($wc,0,6) == "WHERE ")
                     $wc = substr($wc,6);
 
-                //Make sure we have the wc values set
+                //Make sure we have the mb_wc values set
                 if(!is_array($custom_wc_values))
                     die("You must supply an array of values for the where clause");
                 $query .= $wc;
@@ -198,14 +198,14 @@ abstract class ModelBuddyModel {
 
         /*
          * Did we find anything?
-         * If we did, populate the object with the values and save the wc to use later.
-         * If we didn't find anything, make a default object and trash the wc.
+         * If we did, populate the object with the values and save the mb_wc to use later.
+         * If we didn't find anything, make a default object and trash the mb_wc.
          */
         try {
             if($stmt->rowCount() == 0) {
                 mb_debugMessage("No records found. Using defaults.");
                 $this->mb_setDefaults();
-                $this->wc = "";
+                $this->mb_wc = "";
             }
             else {
                 mb_debugMessage("Record found.");
@@ -213,14 +213,90 @@ abstract class ModelBuddyModel {
                 foreach($row as $key=>$value) {
                     $this->$key = $value;
                 }
-                $this->wc = $wc;
-                $this->custom_wc_values = $custom_wc_values;
+                $this->mb_wc = $query; //Keep the query instead of the original mb_wc so we don't have to do the conversion again later
+                $this->mb_custom_wc_values = $custom_wc_values;
             }
         }
         catch(PDOException $e) {
-            echo "no";
+            die("Could not fetch result for " . $this->mb_class . " model.");
         }
+    }
 
+    /**
+     * update()
+     * Save the model's information to the database.
+     * This calls additional functions so it's easier for developers to customize the system to their needs.
+     * An example modification would be determining if a record has been altered by someone else before you to prevent overwriting changes.
+     * We keep things simple here though ;)
+     */
+    function update() {
+        //Perform validation first
+        if($this->validate()) {
+            /*
+             * Insert a new record
+             */
+            if($this->mb_wc == "") {
+                mb_debugMessage("Adding new record");
+                $this->insertRecord();
+            }
+            /*
+             * Update the existing record
+             */
+            else {
+                mb_debugMessage("Updating existing record");
+                $this->updateRecord();
+            }
+        }
+    }
+
+    /**
+     * insertRecord
+     * Inserts the new record into the database.
+     */
+    private function insertRecord() {
+        global $db;
+        mb_debugMessage("Called insertRecord");
+        $field_string = "";
+        $value_string = "";
+        foreach($this->mb_tableStructure as $field) {
+            if(!strstr($field['Extra'],"auto_increment")) { //Let auto increment fields handle themselves
+                //INSERT INTO table (...
+                $field_string   .= $field['Field'] . ",";
+                //VALUES(...
+                $value_string   .= ":" . $field['Field'] . ",";
+                //The array of values to use in our prepared statement
+                $values[":".$field['Field']] = $this->$field['Field'];
+            }
+        }
+        //Trim off the ending comma
+        $field_string = substr($field_string,0,-1);
+        $value_string = substr($value_string,0,-1);
+
+        $query = "INSERT INTO " . $this->mb_class . " (" . $field_string . ") VALUES (" . $value_string . ")";
+        mb_debugMessage($query);
+        mb_debugMessage($values);
+
+        try {
+            $stmt = $db->prepare($query);
+            $stmt->execute($values);
+        }
+        catch(PDOException $e) {
+            die("Error inserting " . $this->mb_class . " record.<br/><br/>" . $e);
+        }
+        mb_debugMessage("Record inserted.");
+    }
+
+    /**
+     * updateRecord
+     * Updates the existing record in the database based on how it was selected ($this->wc)
+     */
+    private function updateRecord() {
+
+    }
+
+    protected function validate() {
+        //TODO: Validation code here
+        return true;
     }
 
 }
