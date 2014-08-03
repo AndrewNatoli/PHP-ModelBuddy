@@ -11,3 +11,5 @@ error_reporting(255);
 include("inc/modelBuddy.php");
 
 echo "Hello World!";
+
+$guy = new PersonModel(2);
