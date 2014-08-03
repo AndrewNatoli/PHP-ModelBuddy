@@ -126,7 +126,14 @@ abstract class ModelBuddyModel {
              */
             case ModelBuddyModel::wc_use_key:       //Search by key
                 mb_debugMessage("Searching for " . $this->mb_class . " record by primary key");
-
+                $query = "SELECT * FROM {$this->mb_class} WHERE {$this->mb_primary_key}=?";
+                try {
+                    $stmt = $db->prepare($query);
+                    $stmt->execute(array("{$wc}"));
+                }
+                catch(PDOException $e){
+                    echo "Failed to fetch " . $this->mb_class . " model.<br/><br/>" . $e;
+                }
                 break;
 
             /*
