@@ -315,14 +315,10 @@ abstract class ModelBuddyModel {
          * Now we need to add the original where-clause values into the $values array
          */
         //Array of values?
-        if($this->wc_type == ModelBuddyModel::wc_use_array) {
+        if(!$this->wc_type == ModelBuddyModel::wc_use_key) {
             foreach($this->mb_custom_wc_values as $wc_value) {
                 $values[] = $wc_value; //How convenient we built this array for the constructor's select statement ;)
             }
-        }
-        //Custom values?
-        elseif($this->wc_type == ModelBuddyModel::wc_use_custom) {
-            $values[] = $this->mb_custom_wc_values;
         }
         else {
             $values[] = $this->{$this->mb_primary_key};
