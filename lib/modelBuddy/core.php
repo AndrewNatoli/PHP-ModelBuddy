@@ -24,6 +24,12 @@ switch(MB_DB_ENGINE) {
         break;
 }
 
+/**
+ * $mb_table_cache array
+ * Stores table structures for our models
+ */
+$mb_table_cache = array();
+
 //Load our base model
 require_once("ModelBuddyModel.php");
 
@@ -45,5 +51,4 @@ else {
         mb_debugMessage("Loading model: " . $mb_modelFile);
         require_once($mb_modelFile);
     }
-
 }

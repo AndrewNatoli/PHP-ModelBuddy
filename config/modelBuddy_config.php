@@ -60,6 +60,6 @@ define("MB_DEBUG",true);
 /**
  * MB_DB_ENGINE
  * Which database driver ModelBuddy should use.
- * Currently supported is mysql_pdo
+ * Only mysql_pdo is supported at the time. Additional support will require re-working the base ModelBuddyModel
  */
 define("MB_DB_ENGINE","mysql_pdo");

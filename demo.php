@@ -38,6 +38,7 @@ switch($mode) {
 
         echo "<hr><pre>";
         print_r($guy);
+        echo "<br/><a href='demo.php'>Back to menu</a>";
         break;
 
     case "insert":
@@ -66,6 +67,7 @@ switch($mode) {
                 $newPerson->update();
                 break;
         }
+        echo "<br/><a href='demo.php'>Back to menu</a>";
         break;
 
     case "update":
@@ -95,6 +97,7 @@ switch($mode) {
                 echo "<h3>Now we'll update it in the database by calling PersonModel's update function</h3>";
                 $newPerson->update();
                 break;
+                echo "<br/><a href='demo.php'>Back to menu</a>";
         }
         break;
 
@@ -106,6 +109,17 @@ switch($mode) {
         echo "<h3>The record still exists in PHP so we can modify it and re-insert it as a new record!</h3>";
         $newPerson->update();
         echo "<h4>Done.</h4>";
+        echo "<a href='demo.php'>Back to menu</a>";
+        break;
+
+    case "cache":
+        echo "<h2>Cache Demo</h2>Instead of hitting the database server every time we need the structure of a model, Model Buddy does it the first
+                time for each model type and stores the structure in a PHP array. If MB_DEBUG is set to true in modelBuddy_config.php,
+                notice the difference in debug messages when we select our second person.<br/><br/>";
+        $firstPerson = new PersonModel(1);
+        $secondPerson= new PersonModel("person_id>?",array(1));
+
+        echo "<br/><a href='demo.php'>Back to menu</a>";
         break;
 
     /*
@@ -118,6 +132,7 @@ switch($mode) {
         echo "<li><a href='?mode=insert'>Insert Demo</a></li>";
         echo "<li><a href='?mode=update'>Update Demo</a></li>";
         echo "<li><a href='?mode=delete'>Delete Demo</a></li>";
+        echo "<li><a href='?mode=cache'>Cache Demo</a></li>";
         echo "</ol>";
         break;
 }

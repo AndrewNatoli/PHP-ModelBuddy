@@ -65,25 +65,14 @@ abstract class ModelBuddyModel {
         //Get our table name using the name of the class that was called
         $this->mb_class = str_replace("Model","",get_class($this));
 
-        /*
-         * Load the table structure
-         */
-        //TODO: Cache this for later
-        try {
-            $stmt = $db->prepare("DESCRIBE " . $this->mb_class);
-            $stmt->execute();
-            $this->mb_tableStructure = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
-        catch (PDOException $e) {
-            die("Failed to load structure for " . $this->mb_class . " table.");
-        }
+        $this->mb_getTableStructure();
 
         /*
          * Determine how we are going to search for our data
          */
         if(is_array($wc))
             $this->wc_type = ModelBuddyModel::wc_use_array;     //Use an array for the where-clause. Match keys to values
-        elseif(strstr($wc," ") || strstr($wc,"="))
+        elseif(strstr($wc," ") || strstr($wc,"=") || strstr($wc,">") || strstr($wc,"<"))
             $this->wc_type = ModelBuddyModel::wc_use_custom;    //Use a custom, hand-crafted where clause
         else
             $this->wc_type = ModelBuddyModel::wc_use_key;       //Use the table's primary key with a single value
@@ -108,6 +97,38 @@ abstract class ModelBuddyModel {
         }
         else {
             $this->mb_fetchModel($wc,$custom_wc_values);
+        }
+    }
+
+    /**
+     * mb_getTableStructure()
+     * Checks the cache to see if we already grabbed the table structure.
+     * Otherwise, pulls the table structure from the database
+     * @private
+     */
+    private function mb_getTableStructure() {
+        global $db, $mb_table_cache;
+        /*
+         * Get the table structure from the database
+         */
+        if(empty($mb_table_cache[$this->mb_class])) {
+            mb_debugMessage("Getting table structure from server");
+            try {
+                $stmt = $db->prepare("DESCRIBE " . $this->mb_class);
+                $stmt->execute();
+                $this->mb_tableStructure = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $mb_table_cache[$this->mb_class] = $this->mb_tableStructure;
+            }
+            catch (PDOException $e) {
+                die("Failed to load structure for " . $this->mb_class . " table.");
+            }
+        }
+        /*
+         * Pull the table structure from our runtime cache
+         */
+        else {
+            mb_debugMessage("Getting table structure from cache");
+            $this->mb_tableStructure = $mb_table_cache[$this->mb_class];
         }
     }
 

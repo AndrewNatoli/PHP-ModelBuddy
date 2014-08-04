@@ -1,7 +1,7 @@
 <?php
 /**
  * PHP Model Buddy
- * MySQL PDO Driver
+ * MySQL PDO Connector
  * @author Andrew Natoli
  * @date 2014 August
  * @since 1
