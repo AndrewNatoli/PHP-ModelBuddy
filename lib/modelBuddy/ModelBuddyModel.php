@@ -340,6 +340,56 @@ abstract class ModelBuddyModel {
         mb_debugMessage("Record updated.");
     }
 
+    /**
+     * delete()
+     * Delete the current instance from the database.
+     * Note it will stay in PHP until the end of program execution so you can manipulate and re-insert it.
+     */
+    function delete() {
+        global $db;
+        mb_debugMessage("Deleting a record");
+
+        //Prioritize using the primary key if one is set.
+        if($this->mb_primary_key != "" && $this->{$this->mb_primary_key} != "") {
+            $this->mb_wc = "WHERE " . $this->mb_primary_key . "=?";
+            $values[] = $this->{$this->mb_primary_key};
+        }
+        //No primary key? Okay.
+        else {
+            if(!$this->wc_type == ModelBuddyModel::wc_use_key) {
+                foreach($this->mb_custom_wc_values as $wc_value) {
+                    $values[] = $wc_value; //How convenient we built this array for the constructor's select statement ;)
+                }
+            }
+            else {
+                $values[] = $this->{$this->mb_primary_key};
+            }
+        }
+
+        //The query...
+        $query = "DELETE FROM {$this->mb_class} {$this->mb_wc} LIMIT 1";
+
+        //Execute the query
+        try {
+            mb_debugMessage($query);
+            mb_debugMessage($values);
+            $stmt = $db->prepare($query);
+            $stmt->execute($values);
+        }
+        catch(PDOException $e) {
+            die("Error deleting " . $this->mb_class . " record.<br/><br/>" . $e);
+        }
+
+        /*
+         * Wipe WC data so we can re-insert the record later in program execution if needed.
+         */
+        $this->{$this->mb_primary_key}      = "";
+        $this->mb_wc                        = "";
+        $this->mb_custom_wc_values          = "";
+        $this->wc_type                      = "";
+    }
+
+
     protected function validate() {
         //TODO: Validation code here
         return true;

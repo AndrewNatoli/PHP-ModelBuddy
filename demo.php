@@ -98,6 +98,16 @@ switch($mode) {
         }
         break;
 
+    case "delete":
+        $newPerson = new PersonModel("WHERE person_id>=?",array(2));
+        echo "<h2>Deletion Demo</h2>We're going to select a record, delete it from the database but then re-insert it as a new record.<br/><Br/>";
+
+        $newPerson->delete();
+        echo "<h3>The record still exists in PHP so we can modify it and re-insert it as a new record!</h3>";
+        $newPerson->update();
+        echo "<h4>Done.</h4>";
+        break;
+
     /*
      * Main menu
      */
@@ -107,6 +117,7 @@ switch($mode) {
         echo "<li><a href='?mode=select'>Select Demo</a></li>";
         echo "<li><a href='?mode=insert'>Insert Demo</a></li>";
         echo "<li><a href='?mode=update'>Update Demo</a></li>";
+        echo "<li><a href='?mode=delete'>Delete Demo</a></li>";
         echo "</ol>";
         break;
 }
