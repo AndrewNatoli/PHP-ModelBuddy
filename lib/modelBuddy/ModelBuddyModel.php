@@ -98,6 +98,9 @@ abstract class ModelBuddyModel {
         else {
             $this->mb_fetchModel($wc,$custom_wc_values);
         }
+
+        if(method_exists($this,"extra_constructor"))
+            $this->extra_constructor();
     }
 
     /**

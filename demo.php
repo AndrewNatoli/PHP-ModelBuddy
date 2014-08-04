@@ -122,6 +122,29 @@ switch($mode) {
         echo "<br/><a href='demo.php'>Back to menu</a>";
         break;
 
+    case "tree":
+        echo '<h2>Data Tree</h2>
+            Model Buddy can execute an optional function at the end of its constructor designed
+            to extend the model with additional models.<br/><br/>
+
+            For example: if you have a store and want to load in all of the employees, you can load the employee
+            model into the store model but alter them separately. Here\'s an example of what the resulting object looks like:
+            <br/><br/>
+        ';
+        $myStore = new StoreModel(1);
+        echo '<pre>';
+        print_r($myStore);
+        echo '</pre>';
+
+        echo 'You can now manipulate that employee with it visualized as part of the store. ($myStore->employees[0]->update())<br/><br/>';
+        echo $myStore->employees[0]->firstname . " " . $myStore->employees[0]->lastname . '<br/><br/>';
+        $myStore->employees[0]->lastname = "Crunch";
+        $myStore->employees[0]->update();
+
+        echo '<br/><br/> Another use could be listing all the products in a store or all of the doctors that work at a practice.';
+        echo "<br/><a href='demo.php'>Back to menu</a>";
+        break;
+
     /*
      * Main menu
      */
@@ -133,6 +156,7 @@ switch($mode) {
         echo "<li><a href='?mode=update'>Update Demo</a></li>";
         echo "<li><a href='?mode=delete'>Delete Demo</a></li>";
         echo "<li><a href='?mode=cache'>Cache Demo</a></li>";
+        echo "<li><a href='?mode=tree'>Data Tree Demo</a></li>";
         echo "</ol>";
         break;
 }
