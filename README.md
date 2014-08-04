@@ -1,5 +1,7 @@
 PHP-ModelBuddy
 ==============
+![image](http://andrewnatoli.com/wp-content/uploads/2014/08/modelBuddyLogo-300x300.jpg)
+
 *Database-driven applications should be easy to create. Let Model Buddy help you!*
 
 ### I had two problems when working on database-driven projects:
