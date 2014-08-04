@@ -84,7 +84,7 @@ switch($mode) {
                 <?php
                 break;
             case 2:
-                $newPerson = new PersonModel(1);
+                $newPerson = new PersonModel(array("person_id=1"));
                 $newPerson->firstname   = $_POST['firstname'];
                 $newPerson->lastname    = $_POST['lastname'];
                 $newPerson->dob         = $_POST['dob'];

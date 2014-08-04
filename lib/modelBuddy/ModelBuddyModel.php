@@ -214,7 +214,10 @@ abstract class ModelBuddyModel {
                     $this->$key = $value;
                 }
                 $this->mb_wc = strstr($query," WHERE ", false); //Keep the query instead of the original mb_wc so we don't have to do the conversion again later
-                $this->mb_custom_wc_values = $custom_wc_values;
+                if($custom_wc_values != "")
+                    $this->mb_custom_wc_values = $custom_wc_values;
+                else
+                    $this->mb_custom_wc_values = $wc;
             }
         }
         catch(PDOException $e) {
@@ -312,13 +315,13 @@ abstract class ModelBuddyModel {
          * Now we need to add the original where-clause values into the $values array
          */
         //Array of values?
-        if(is_array($this->mb_custom_wc_values)) {
+        if($this->wc_type == ModelBuddyModel::wc_use_array) {
             foreach($this->mb_custom_wc_values as $wc_value) {
-                $values[] = $wc_value;
+                $values[] = $wc_value; //How convenient we built this array for the constructor's select statement ;)
             }
         }
         //Custom values?
-        elseif($this->mb_custom_wc_values != "") {
+        elseif($this->wc_type == ModelBuddyModel::wc_use_custom) {
             $values[] = $this->mb_custom_wc_values;
         }
         else {
