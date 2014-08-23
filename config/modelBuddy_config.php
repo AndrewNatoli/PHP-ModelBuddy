@@ -51,6 +51,13 @@ $DB_NAME            = "modelBuddy";
 define("MB_MODEL_DIR","././models");
 
 /**
+ * Whether or not ModelBuddy should automatically require() the models
+ * found in MB_MODEL_DIR
+ * @default: true
+ */
+define("MB_AUTOLOAD_MODELS",true);
+
+/**
  * MB_DEBUG
  * Print debug messages during execution.
  * Set this to "false" in production environments!

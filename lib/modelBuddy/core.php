@@ -33,22 +33,9 @@ $mb_table_cache = array();
 //Load our base model
 require_once("ModelBuddyModel.php");
 
-if(!file_exists(MB_MODEL_DIR))
-    die("Could not find models directory!");
-else {
-    /* TODO: Need a way to make sure these files which are being auto-loaded couldn't have been injected by an attacker */
-    $mb_modelFiles = scandir(MB_MODEL_DIR);
-
-    //Sanitize the array by removing any non PHP file indexes
-    for($i=0; $i<=count($mb_modelFiles);$i++) {
-        if(!strstr($mb_modelFiles[$i],"php"))
-            unset($mb_modelFiles[$i]);
-    }
-
-    //Now load them in.
-    foreach($mb_modelFiles as $mb_modelFilename) {
-        $mb_modelFile = MB_MODEL_DIR . "/" . $mb_modelFilename;
-        mb_debugMessage("Loading model: " . $mb_modelFile);
-        require_once($mb_modelFile);
-    }
+/*
+ * Should we auto load the models?
+ */
+if(MB_AUTOLOAD_MODELS) {
+    mb_autoload_models();
 }
