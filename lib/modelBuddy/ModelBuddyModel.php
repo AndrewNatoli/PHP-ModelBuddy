@@ -92,10 +92,11 @@ abstract class ModelBuddyModel {
          * Use either the defaults if no mb_wc was specified OR fetch the model if there is a mb_wc
          */
         if($wc == "") {
-            //Blank model? Use defaults...
+            //No where-clause? Set defaults...
             $this->mb_setDefaults();
         }
         else {
+            //Got a where-clause, find the model.
             $this->mb_fetchModel($wc,$custom_wc_values);
         }
 
@@ -138,12 +139,32 @@ abstract class ModelBuddyModel {
     /**
      * mb_setDefaults()
      * Populate this instance with default values from the table
+     * If $this->mb_useDefaults is false, we'll call mb_blankModelAction()
      */
-    private function mb_setDefaults() {
+    protected function mb_setDefaults() {
         global $db;
-        foreach($this->mb_tableStructure as $field) {
-            $this->$field['Field'] = $field['Default'];
+        //Use defaults from the table
+        if(!isset($this->mb_useDefaults) || $this->mb_useDefaults == true) {
+            //Loop through our structure and get the results
+            foreach($this->mb_tableStructure as $field) {
+                $this->$field['Field'] = $field['Default'];
+            }
+            //If $this->mb_useDefaults is set to false you can set your own action
+            //by overriding mb_blankModelAction().
+        } else {
+            $this->mb_blankModelAction();
         }
+    }
+
+    /**
+     * mb_blankModelAction
+     * Override this to perform your own custom action if there's no corresponding
+     * record in the database for the supplied WC.
+     *
+     * Use this for error-handling, read-only access, etc.
+     */
+    protected function mb_blankModelAction() {
+        //Override this to perform an action if the model is empty
     }
 
     /**
