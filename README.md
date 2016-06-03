@@ -1,8 +1,8 @@
-## Project Abandoned
+# Project Abandoned
 
 PHP-ModelBuddy was a learning project that I have since abandoned. You're welcome to poke around at the source or submit pull requests if you're interested in continuing the project. 
 
-I reccomend the following projects as pretty solid alternatives:
+## I reccomend the following projects as pretty solid alternatives:
 
 ### [RedBeanPHP](http://www.redbeanphp.com/index.php)
 RedBeanPHP is a fantastic "zero-config" ORM that will develop your database schema for you. I highly recomend it for small projects and prototyping. RedBeanPHP is the secret sauce that makes [RapidREST](https://github.com/AndrewNatoli/PHP-RapidREST) work!
